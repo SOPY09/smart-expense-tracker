@@ -35,7 +35,7 @@ public:
     void display(int index) {
         cout << index << ". "
              << title << " | "
-             << category << " | ₹"
+             << category << " | Rs"
              << fixed << setprecision(2) << amount << endl;
     }
 };
@@ -57,7 +57,7 @@ public:
         cout << "Enter category: ";
         getline(cin, category);
 
-        cout << "Enter amount: ₹";
+        cout << "Enter amount: Rs";
         cin >> amount;
 
         if (amount <= 0) {
@@ -90,7 +90,7 @@ public:
             total += e.getAmount();
         }
 
-        cout << "\nTotal spending: ₹"
+        cout << "\nTotal spending: Rs"
              << fixed << setprecision(2)
              << total << endl;
     }
