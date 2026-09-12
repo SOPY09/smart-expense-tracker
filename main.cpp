@@ -52,7 +52,7 @@ public:
         cout << "Enter category: ";
         getline(cin, category);
 
-        cout << "Enter amount: ₹";
+        cout << "Enter amount: Rs.";
         cin >> amount;
 
         expenses.push_back(Expense(title, category, amount));
