@@ -1,1 +1,4 @@
 skins valorant|entertainment|1600
+valorant skin|entertainment|1600
+pasta+chocklate|food|200
+back|education|2500
