@@ -1,12 +1,13 @@
 #include <bits/stdc++.h>
 #include <windows.h>
 using namespace std;
+
 void setColor(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
 
 void resetColor() {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+    setColor(7);
 }
 
 class Expense {
@@ -41,11 +42,13 @@ public:
     }
 
     void display(int index) {
-        cout << "  " << left << setw(5) << index
-             << setw(24) << title.substr(0, 22)
+        cout << "  " << left
+             << setw(5) << index
+             << setw(25) << title.substr(0, 23)
              << setw(18) << category.substr(0, 16)
              << "Rs." << right << setw(10)
-             << fixed << setprecision(2) << amount << left << "\n";
+             << fixed << setprecision(2) << amount
+             << left << "\n";
     }
 };
 
@@ -53,84 +56,157 @@ class ExpenseTracker {
 private:
     vector<Expense> expenses;
 
-    void setColor(int color) {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+    void clearScreen() {
+        system("cls");
     }
 
-    void resetColor() {
-        setColor(7);
-    }
-
-    void printLine(char ch = '=', int width = 70) {
+    void printLine(char ch = '=', int width = 72) {
         cout << string(width, ch) << "\n";
     }
 
-    void printTitle(string title) {
+    void printSection(string title) {
         setColor(11);
-        printLine();
-        cout << "                    " << title << "\n";
-        printLine();
+        cout << "\n  +------------------------------------------------------------------+\n";
+        cout << "  |  " << left << setw(64) << title << "|\n";
+        cout << "  +------------------------------------------------------------------+\n";
         resetColor();
+    }
+
+    void printStat(string label, string value, int color) {
+        setColor(8);
+        cout << "  | ";
+        setColor(14);
+        cout << left << setw(20) << label;
+        setColor(color);
+        cout << setw(42) << value;
+        setColor(8);
+        cout << "|\n";
+        resetColor();
+    }
+
+    double getTotal() {
+        double total = 0;
+
+        for (Expense e : expenses) {
+            total += e.getAmount();
+        }
+
+        return total;
+    }
+
+    int getHighestIndex() {
+        if (expenses.empty()) {
+            return -1;
+        }
+
+        int index = 0;
+
+        for (int i = 1; i < expenses.size(); i++) {
+            if (expenses[i].getAmount() > expenses[index].getAmount()) {
+                index = i;
+            }
+        }
+
+        return index;
     }
 
 public:
     void pauseScreen() {
         setColor(8);
-        cout << "\nPress Enter to continue...";
+        cout << "\n  Press Enter to continue...";
         resetColor();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cin.get();
     }
 
-private:
-    void clearScreen() {
-        system("cls");
-    }
-
-public:
     void showHeader() {
         setColor(11);
         cout << "\n";
-        cout << "======================================================================\n";
-        cout << "                     SMART EXPENSE TRACKER\n";
-        cout << "                     Personal Finance Manager\n";
-        cout << "======================================================================\n";
+        cout << "  ====================================================================\n";
+        cout << "  ||                    SMART EXPENSE TRACKER                     ||\n";
+        cout << "  ||                     Personal Finance Manager                  ||\n";
+        cout << "  ====================================================================\n";
+        resetColor();
+    }
+
+    void showDashboard() {
+        double total = getTotal();
+        int highestIndex = getHighestIndex();
+
+        setColor(8);
+        cout << "\n  +----------------------+----------------------+----------------------+\n";
+        cout << "  | ";
+        setColor(14);
+        cout << left << setw(20) << "TOTAL SPENDING";
+        setColor(8);
+        cout << "| ";
+        setColor(14);
+        cout << left << setw(20) << "TOTAL EXPENSES";
+        setColor(8);
+        cout << "| ";
+        setColor(14);
+        cout << left << setw(20) << "HIGHEST EXPENSE";
+        setColor(8);
+        cout << "|\n";
+
+        cout << "  | ";
+        setColor(10);
+        cout << left << setw(20) << ("Rs." + to_string((long long)total));
+        setColor(8);
+        cout << "| ";
+        setColor(10);
+        cout << left << setw(20) << to_string(expenses.size());
+        setColor(8);
+        cout << "| ";
+
+        if (highestIndex != -1) {
+            setColor(12);
+            cout << left << setw(20) << ("Rs." + to_string((long long)expenses[highestIndex].getAmount()));
+        } else {
+            setColor(8);
+            cout << left << setw(20) << "Rs.0";
+        }
+
+        setColor(8);
+        cout << "|\n";
+        cout << "  +----------------------+----------------------+----------------------+\n";
         resetColor();
     }
 
     void showMenu() {
         setColor(14);
-        cout << "\n";
-        cout << "  +--------------------------------------------------------------+\n";
-        cout << "  |                         MAIN MENU                            |\n";
-        cout << "  +--------------------------------------------------------------+\n";
+        cout << "\n  +------------------------------------------------------------------+\n";
+        cout << "  |                           MAIN MENU                              |\n";
+        cout << "  +------------------------------------------------------------------+\n";
         resetColor();
 
         setColor(10);
-        cout << "  |  [1]  Add Expense                                            |\n";
-        cout << "  |  [2]  View Expenses                                          |\n";
-        cout << "  |  [3]  Search by Category                                     |\n";
-        cout << "  |  [4]  Calculate Total                                         |\n";
-        cout << "  |  [5]  Find Highest Expense                                   |\n";
-        cout << "  |  [6]  Save Expenses                                          |\n";
+        cout << "  |  [1]  Add Expense                                                |\n";
+        cout << "  |  [2]  View All Expenses                                          |\n";
+        cout << "  |  [3]  Search by Category                                         |\n";
+        cout << "  |  [4]  Spending Summary                                           |\n";
+        cout << "  |  [5]  Find Highest Expense                                       |\n";
+        cout << "  |  [6]  Save Expenses                                              |\n";
         resetColor();
 
         setColor(12);
-        cout << "  |  [7]  Exit                                                    |\n";
+        cout << "  |  [7]  Exit                                                       |\n";
         resetColor();
 
         setColor(14);
-        cout << "  +--------------------------------------------------------------+\n";
+        cout << "  +------------------------------------------------------------------+\n";
         resetColor();
-        cout << "\n  Select an option: ";
+
+        cout << "\n  Select an option [1-7]: ";
     }
 
     void addExpense() {
         clearScreen();
         showHeader();
-        printTitle("ADD NEW EXPENSE");
+        printSection("ADD NEW EXPENSE");
 
-        string title, category;
+        string title;
+        string category;
         double amount;
 
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -144,10 +220,23 @@ public:
         cout << "  Amount        : Rs.";
         cin >> amount;
 
-        if (amount <= 0) {
+        if (cin.fail() || amount <= 0) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
             setColor(12);
-            cout << "\n  [X] Invalid amount. Please enter a positive value.\n";
+            cout << "\n  [X] Invalid amount. Please enter a positive number.\n";
             resetColor();
+
+            pauseScreen();
+            return;
+        }
+
+        if (title.empty() || category.empty()) {
+            setColor(12);
+            cout << "\n  [X] Title and category cannot be empty.\n";
+            resetColor();
+
             pauseScreen();
             return;
         }
@@ -158,26 +247,33 @@ public:
         cout << "\n  [OK] Expense added successfully!\n";
         resetColor();
 
+        setColor(8);
+        cout << "  Title    : " << title << "\n";
+        cout << "  Category : " << category << "\n";
+        cout << "  Amount   : Rs." << fixed << setprecision(2) << amount << "\n";
+        resetColor();
+
         pauseScreen();
     }
 
     void viewExpenses() {
         clearScreen();
         showHeader();
+        printSection("YOUR EXPENSES");
 
         if (expenses.empty()) {
             setColor(14);
             cout << "\n  No expenses found.\n";
+            cout << "  Add your first expense from the main menu.\n";
             resetColor();
+
             pauseScreen();
             return;
         }
 
-        printTitle("YOUR EXPENSES");
-
         cout << "\n  " << left
              << setw(5) << "#"
-             << setw(24) << "TITLE"
+             << setw(25) << "TITLE"
              << setw(18) << "CATEGORY"
              << "AMOUNT\n";
 
@@ -190,7 +286,8 @@ public:
         }
 
         setColor(11);
-        cout << "\n  Total Records: " << expenses.size() << "\n";
+        cout << "\n  Total Records : " << expenses.size() << "\n";
+        cout << "  Total Spent   : Rs." << fixed << setprecision(2) << getTotal() << "\n";
         resetColor();
 
         pauseScreen();
@@ -199,29 +296,31 @@ public:
     void calculateTotal() {
         clearScreen();
         showHeader();
-        printTitle("SPENDING SUMMARY");
+        printSection("SPENDING SUMMARY");
 
-        double total = 0;
+        double total = getTotal();
+        double average = expenses.empty() ? 0 : total / expenses.size();
 
-        for (Expense e : expenses) {
-            total += e.getAmount();
+        cout << "\n";
+        printStat("Total Spending", "Rs." + to_string(total), 10);
+        printStat("Number of Expenses", to_string(expenses.size()), 11);
+        printStat("Average Expense", "Rs." + to_string(average), 14);
+
+        int highestIndex = getHighestIndex();
+
+        if (highestIndex != -1) {
+            printStat("Highest Expense",
+                      "Rs." + to_string(expenses[highestIndex].getAmount()),
+                      12);
+        } else {
+            printStat("Highest Expense", "Rs.0", 8);
         }
 
-        setColor(14);
-        cout << "\n  Total Amount Spent\n";
-        resetColor();
-
+        cout << "\n";
         setColor(10);
-        cout << "\n                 Rs." << fixed << setprecision(2) << total << "\n";
+        cout << "  Your current total spending is Rs."
+             << fixed << setprecision(2) << total << "\n";
         resetColor();
-
-        cout << "\n  Number of Expenses: " << expenses.size() << "\n";
-
-        if (!expenses.empty()) {
-            cout << "  Average Expense   : Rs."
-                 << fixed << setprecision(2)
-                 << total / expenses.size() << "\n";
-        }
 
         pauseScreen();
     }
@@ -229,36 +328,37 @@ public:
     void findHighestExpense() {
         clearScreen();
         showHeader();
+        printSection("HIGHEST EXPENSE");
 
-        if (expenses.empty()) {
+        int index = getHighestIndex();
+
+        if (index == -1) {
             setColor(14);
             cout << "\n  No expenses found.\n";
             resetColor();
+
             pauseScreen();
             return;
         }
 
-        printTitle("HIGHEST EXPENSE");
-
-        int index = 0;
-
-        for (int i = 1; i < expenses.size(); i++) {
-            if (expenses[i].getAmount() > expenses[index].getAmount()) {
-                index = i;
-            }
-        }
-
         setColor(12);
-        cout << "\n  Highest spending item:\n\n";
+        cout << "\n  Highest spending item\n";
         resetColor();
 
-        cout << "  Title    : " << expenses[index].getTitle() << "\n";
-        cout << "  Category : " << expenses[index].getCategory() << "\n";
+        setColor(8);
+        cout << "\n  +--------------------------------------------------------------+\n";
+        cout << "  | Title    : " << left << setw(47)
+             << expenses[index].getTitle().substr(0, 47) << "|\n";
+        cout << "  | Category : " << left << setw(47)
+             << expenses[index].getCategory().substr(0, 47) << "|\n";
+        cout << "  | Amount   : ";
 
         setColor(10);
-        cout << "  Amount   : Rs."
-             << fixed << setprecision(2)
-             << expenses[index].getAmount() << "\n";
+        cout << "Rs." << fixed << setprecision(2)
+             << left << setw(43) << expenses[index].getAmount();
+        setColor(8);
+        cout << "|\n";
+        cout << "  +--------------------------------------------------------------+\n";
         resetColor();
 
         pauseScreen();
@@ -267,16 +367,16 @@ public:
     void searchByCategory() {
         clearScreen();
         showHeader();
+        printSection("SEARCH BY CATEGORY");
 
         if (expenses.empty()) {
             setColor(14);
             cout << "\n  No expenses found.\n";
             resetColor();
+
             pauseScreen();
             return;
         }
-
-        printTitle("SEARCH BY CATEGORY");
 
         string category;
 
@@ -286,10 +386,11 @@ public:
         getline(cin, category);
 
         bool found = false;
+        double categoryTotal = 0;
 
         cout << "\n  " << left
              << setw(5) << "#"
-             << setw(24) << "TITLE"
+             << setw(25) << "TITLE"
              << setw(18) << "CATEGORY"
              << "AMOUNT\n";
 
@@ -300,6 +401,7 @@ public:
         for (int i = 0; i < expenses.size(); i++) {
             if (expenses[i].getCategory() == category) {
                 expenses[i].display(i + 1);
+                categoryTotal += expenses[i].getAmount();
                 found = true;
             }
         }
@@ -307,6 +409,11 @@ public:
         if (!found) {
             setColor(12);
             cout << "\n  [X] No expenses found in this category.\n";
+            resetColor();
+        } else {
+            setColor(10);
+            cout << "\n  Category Total : Rs."
+                 << fixed << setprecision(2) << categoryTotal << "\n";
             resetColor();
         }
 
@@ -318,7 +425,7 @@ public:
 
         if (!file) {
             setColor(12);
-            cout << "\n  [X] Unable to open file.\n";
+            cout << "\n  [X] Unable to open expenses.txt.\n";
             resetColor();
             return;
         }
@@ -343,15 +450,19 @@ public:
             return;
         }
 
-        string title, category, amount;
+        string title;
+        string category;
+        string amount;
 
         while (getline(file, title, '|') &&
                getline(file, category, '|') &&
                getline(file, amount)) {
-
-            expenses.push_back(
-                Expense(title, category, stod(amount))
-            );
+            try {
+                expenses.push_back(
+                    Expense(title, category, stod(amount))
+                );
+            } catch (...) {
+            }
         }
 
         file.close();
@@ -368,9 +479,21 @@ int main() {
     do {
         system("cls");
         tracker.showHeader();
+        tracker.showDashboard();
         tracker.showMenu();
 
         cin >> choice;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            setColor(12);
+            cout << "\n  [X] Invalid input. Please enter a number from 1 to 7.\n";
+            resetColor();
+            Sleep(1000);
+            continue;
+        }
 
         switch (choice) {
             case 1:
@@ -395,7 +518,6 @@ int main() {
 
             case 6:
                 tracker.saveExpenses();
-                tracker.showHeader();
                 tracker.pauseScreen();
                 break;
 
@@ -403,7 +525,11 @@ int main() {
                 tracker.saveExpenses();
                 system("cls");
                 tracker.showHeader();
-                cout << "\n  Thank you for using Smart Expense Tracker!\n\n";
+
+                setColor(10);
+                cout << "\n  Thank you for using Smart Expense Tracker!\n";
+                cout << "  Your expenses have been saved successfully.\n\n";
+                resetColor();
                 break;
 
             default:
